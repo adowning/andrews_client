@@ -11,7 +11,7 @@
         </v-btn>
       </v-flex>
        <v-flex>
-         <v-btn  block color="green" class="white--text" @click.native="updateScanedEmployee('qQxa9tZOsr')">
+         <v-btn  block color="green" class="white--text" @click.native="updateScanedEmployee('1444044')">
           fakeScan
         </v-btn>
        <v-btn  block color="red" class="white--text" @click.native="goHome()">
@@ -22,63 +22,41 @@
 </template>
       
 <script>
-// import axios from 'axios'
-import Parse from "parse";
-import { gebHandler } from "vue-geb";
-
-// var Parse = require("parse");
+import { gebHandler } from "vue-geb"
 
 export default {
   page: {
     title: "Log in"
   },
-  // props: ['_setEmployee'],
-  // components: { QrcodeReader },
   data() {
     return {
       startScan: false
-    };
+    }
   },
 
   methods: {
     async updateScanedEmployee(_id) {
-      var self = this;
-      // var me = {}
-      // var token = await window.localStorage.getItem("humanityToken")
-      var elist = await JSON.parse(window.localStorage.getItem("employeeList"));
-      for (var e of elist) {
-        console.log(e)
-        if (e.objectId == _id) {
-          console.log(e.humanityId);
-          var status = await self.$getClockStatus(e.humanityId)
+      // var list = await this.$getHumanityEmployeeList()
+      // console.log(list.data)
+      // console.log(list.data.data)
+      // var list = await this.$deviceInfo.getHumanityEmployeeList();
+      // var list = this.$deviceInfo.employeeList;
+      // var status = await this.$getHumanityClockStatus(_id)
+      for (var e of this.$deviceInfo.employeeList) {
+        if (e.attributes.humanityId === _id) {
+          console.log("found employee")
+          var status = await self.$getHumanityClockStatus(_id);
           gebHandler.emit({
             data: e,
-            clockStatus: status.data.data,
+            humanityClockStatus: status.data.data,
             type: "employeeScanSuccess"
-          })
-          // console.log(self.$getClockStatus(e.humanityId));
+          });
+          console.log(self.$getClockStatus(e.humanityId));
         }
       }
-
-      //    var Employee = Parse.Object.extend("Employee")
-      // var employee = new Parse.Query(Employee)
-      // employee.get(_id)
-      // .then((_employee) => {
-      //       console.log(_employee)
-
-      //   gebHandler.emit({
-      //         data: _employee,
-      //         type: 'employeeScanSuccess'
-      //       })
-
-      // }, (error) => {
-      //  console.log(error)
-      // })
-
-      // this.$router.push("employee/profile:"+id)
     },
     scan() {
-      var self = this;
+      var self = this
       // var cordova = cordova
       /* eslint-disable-next-line */
       cordova.plugins.barcodeScanner.scan(
@@ -93,12 +71,12 @@ export default {
               "\n" +
               "Cancelled: " +
               result.cancelled
-          );
-          self.updateScanedEmployee(result.text);
+          )
+          self.updateScanedEmployee(result.text)
         },
 
         function(error) {
-          alert("Scanning failed: " + error);
+          alert("Scanning failed: " + error)
         },
         {
           preferFrontCamera: false, // iOS and Android
@@ -114,94 +92,12 @@ export default {
           // disableAnimations: true, // iOS
           disableSuccessBeep: false // iOS and Android
         }
-      );
-    },
-    async setUser() {
-      // var result = JSON.parse(_result)
-      // console.log(result)
-      // result.deviceId = this.info.uuid
-      // try {
-      //   let response = await axios.post(
-      //     ' http://groupandrews.com:1880/api/timeclocks/status/',
-      //     result
-      //   )
-      //   this.user = response.data
-      //   this.clockStatus = response.data.data
-      //   this.deviceOwner = response.data.deviceOwner
-      //   console.log(response)
-      // } catch (err) {
-      //   console.log(err)
-      // }
-    },
-    tryToLogIn(content) {
-      this.authError = null;
-      // let content = {};
-      console.log(content);
-      content.username = "asdf";
-      content.password = "asdfasdf";
-      console.log(content);
-      var self = this;
-      return self
-        .mL({
-          username: content.username,
-          password: content.password
-        })
-        .then(token => {
-          console.log("back", token);
-
-          self.tryingToLogIn = false;
-          // Redirect to the originally requested page, or to the home page
-          self.$router.push(this.$route.query.redirectFrom || { name: "home" });
-        })
-        .catch(error => {
-          console.log(error);
-          self.tryingToLogIn = false;
-          self.authError = error;
-          var message = "fix me up and i cant log in";
-          self.event.$emit("alert", message);
-        });
-    },
-
-    onDecode(decodedString) {
-      console.log("ds ", decodedString);
-    },
-    async onInit(promise) {
-      // show loading indicator
-      console.log("promise");
-      var errorText = "";
-      try {
-        await promise;
-      } catch (error) {
-        if (error.name === "NotAllowedError") {
-          errorText = "user denied camera access permisson";
-        } else if (error.name === "NotFoundError") {
-          errorText = "no suitable camera device installed";
-        } else if (error.name === "NotSupportedError") {
-          errorText = " page is not served over HTTPS (or localhost)";
-        } else if (error.name === "NotReadableError") {
-          errorText = " maybe camera is already in use";
-        } else if (error.name === "OverconstrainedError") {
-          errorText = " passed constraints dont match any camera.";
-          // Did you requested the front camera although there is none?
-        } else {
-          errorText = " browser might be lacking features (WebRTC, ...)";
-        }
-      } finally {
-        // hide loading indicator
-        this.loading = false;
-      }
-      if (errorText.length > 1) {
-        var message = {
-          color: "red",
-          text: errorText
-        };
-        this.event.$emit("alert", message);
-      }
+      )
     },
     onDestroy() {
-      console.log("destroying");
-      this.user = null;
+      console.log("destroying")
+      this.user = null
     }
   }
-};
+}
 </script>

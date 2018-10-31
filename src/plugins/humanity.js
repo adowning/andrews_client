@@ -1,42 +1,50 @@
 // import Parse from "parse"
-import { gebHandler } from "vue-geb";
-import axios from "axios";
-var token
+import { gebHandler } from "vue-geb"
+import axios from "axios"
+import Vue from "vue"
+import Parse from "parse";
+var token;
 async function setFunctions(Vue) {
   try {
-    Vue.getClockStatus = async function(empId) {
+    Vue.prototype.getClockStatus = async function(empId) {
       return await axios.get(
-        `https://www.humanity.com/api/v2/timeclocks/status/${empId}/1?access_token=` +
-          token
-      );
-    }
-    Vue.getEmployeeList = async function() {
-      return await axios.get(
-        `https://www.humanity.com/api/v2/employees/?access_token=` + token
-      );
-    }
-    // const wes = await axios("https://api.github.com/users/wesbos");
-    // console.log(wes.data) // mediocre code
+        `/api/v2/timeclocks/status/${empId}/1?access_token=` + token
+      )
+    };
+    Vue.prototype.$getHumanityEmployeeList = async function() {
+      return await axios.get(`/api/v2/employees/?access_token=` + token)
+    };
 
-    // Vue.getClockStatus = async function() {
-    //   axios(
-    //     `https://www.humanity.com/api/v2/timeclocks/status/${empId}/1?access_token=` +
-    //       token
-    //   )
-    // };
-    // Vue.xgetClockStatus = await axios(
-    //   `https://www.humanity.com/api/v2/timeclocks/status/${empId}/1?access_token=` +
-    //     token
-    // );
-    Vue.prototype.$getClockStatus = async function(empId) {
-      console.log(empId);
+    Vue.prototype.$clockIn = async function(empId) {
+      try {
+        // const data = await axios.get(`https://www.humanity.com/api/v2/timeclocks/status/${empId}/0?access_token=` + token)
+
+        const result = await axios.post(
+          `https://www.humanity.com/api/v2/employees/${empId}/clockin?access_token=` +
+            token,
+          { access_token: token }
+        );
+        console.log(data2.data.status);
+        if (result.data.status == 13) {
+          return "13";
+        } else {
+          var res = result.data;
+          return res;
+        }
+      } catch (e) {
+        console.log(e);
+        return "507";
+      }
+    };
+    Vue.prototype.$getHumanityClockStatus = async function(empId) {
+      console.log(empId)
       return axios(
         `/api/v2/timeclocks/status/${empId}/0?access_token=` + token
-      )
+      );
       //     `https://www.humanity.com/api/v2/timeclocks/status/${empId}/1?access_token=` +
       //       token
       //   );
-    };
+    }
 
     // const wordPromise = axios("http://www.setgetgo.com/randomword/get.php");
     // const userPromise = axios("https://randomuser.me/api/");
@@ -49,20 +57,24 @@ async function setFunctions(Vue) {
     // ]);
     // console.log(word.data, user.data, name.data); // cool, {...}, {....}
   } catch (e) {
-    console.error(e) // 💩
+    console.error(e); // 💩
   }
 }
 
 const HumanityPlugin = {
   install(Vue) {
-    console.log("installed")
-    this.sub = gebHandler.getBus().subscribe(message => {
-      if (message.type == "setToken") {
-        token = message.token
-        setFunctions(Vue);
+    console.log("installed");
+    Parse.Config.get().then(
+      function(config) {
+        token = config.get("humanityToken");
+        setFunctions(Vue)
+      },
+      function(error) {
+        console.log(error)
+        token = window.localStorage.getItem("humanityToken");
       }
-    })
+    )
   }
-};
+}
 
-export default HumanityPlugin;
+export default HumanityPlugin

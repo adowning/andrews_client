@@ -14,12 +14,12 @@
     <v-card-text>
       <div class="layout ma-0 align-center" :class="computeCardLayout">
         <v-avatar :size="computeAvatarSize" color="primary">
-          <img v-bind:src="employee.avatar.src" v-bind:alt="employee.name" v-if="showAvatar">
+          <img v-bind:src="employee.attributes.avatar" v-bind:alt="employee.name" v-if="showAvatar">
           <span v-else class="white--text headline">{{ name.charAt(0) }}</span>
         </v-avatar>
         <div class="flex" :class="computeTextAlgin">
-          <div class="subheading">{{employee.name}}</div>
-          <span class="caption">{{employee.title}}</span>
+          <div class="heading">{{employee.attributes.name}}</div>
+          <span class="caption">{{employee.attributes.title}}</span>
         </div>
       </div>
     </v-card-text>
@@ -29,7 +29,7 @@
           <v-icon color="indigo">phone</v-icon>
         </v-list-tile-action>
         <v-list-tile-content>
-          <v-list-tile-title>{{employee.phone}}</v-list-tile-title>
+          <v-list-tile-title>{{employee.attributes.phone}}</v-list-tile-title>
           <v-list-tile-sub-title>Mobile</v-list-tile-sub-title>
         </v-list-tile-content>
         <v-list-tile-action>
@@ -40,7 +40,7 @@
       <v-list-tile href="#">
         <v-list-tile-action></v-list-tile-action>
         <v-list-tile-content>
-          <v-list-tile-title>{{employee.email}}</v-list-tile-title>
+          <v-list-tile-title>{{employee.attributes.email}}</v-list-tile-title>
           <v-list-tile-sub-title>Work</v-list-tile-sub-title>
         </v-list-tile-content>
       </v-list-tile>
@@ -50,16 +50,16 @@
           <v-icon color="indigo">location_on</v-icon>
         </v-list-tile-action>
         <v-list-tile-content>
-          <v-list-tile-title>{{employee.address.street}}</v-list-tile-title>
-          <v-list-tile-sub-title> {{employee.address.city}} {{employee.address.state}} {{employee.address.zip}}</v-list-tile-sub-title>
+          <v-list-tile-title>{{employee.attributes.address.street}}</v-list-tile-title>
+          <v-list-tile-sub-title> {{employee.attributes.address.city}} {{employee.attributes.address.state}} {{employee.attributes.address.zip}}</v-list-tile-sub-title>
         </v-list-tile-content>
       </v-list-tile>
     </v-list>
   </v-card>
   <v-bottom-nav :value="true" :height="64" v-if="showBottomNav">
-      <v-btn block color="primary" dark>Block Button</v-btn>
+      <v-btn block color="#41B883" dark>Block Button</v-btn>
 
-  <!--  <v-btn flat color="teal" value="recent">
+  <!-- <v-btn flat color="teal" value="recent">
       <span>Recent</span>
       <v-icon>history</v-icon>
     </v-btn>
@@ -72,9 +72,9 @@
       <v-icon>place</v-icon>
     </v-btn>-->
   </v-bottom-nav>   
-  <v-btn v-if="employee.clockStatus == 'in'" @click.native="clockOut()" block color="secondary" dark>Clock Out</v-btn>
-  <v-btn v-if="employee.clockStatus == 'in'" @click.native="setMyDevice()" block color="secondary" dark>Make this my Device</v-btn>
-  <v-btn v-if="employee.clockStatus == 'out'"  @click.native="clockIn()"block color="secondary" dark>Clock In</v-btn>
+  <v-btn v-if="employee.attributes.clockStatus == 'in'" @click.native="clockOut()" block color="#41B883" dark>Clock Out</v-btn>
+  <v-btn v-if="employee.attributes.clockStatus == 'in'" @click.native="setMyDevice()" block color="#41B883" dark>Make this my Device</v-btn>
+  <v-btn v-if="employee.attributes.clockStatus == 'out'"  @click.native="clockIn()" block color="#41B883" dark>Clock In</v-btn>
 </div>
 </template>
 
@@ -157,11 +157,18 @@ export default {
     async clockIn() {
       var emp = this.employee;
       var self = this;
-      const params = { empId: emp.humanityId, token: self.$humanityToken };
+      const params = {
+        empId: emp.attributes.humanityId,
+        token: self.$humanityToken
+      };
       console.log("running clock IN ");
-      const status = await Parse.Cloud.run("clockIn", params);
-      if (status.status == 1) {
+      const result = await Parse.Cloud.run("clockIn", params);
+      if (result.status == 1) {
         this.updateEmployee(emp, true)
+      }
+      if (result.status == 3) {
+        console.error("humanity auth token is bad. sheeet")
+        // this.updateEmployee(emp, true)
       }
     }
   },
@@ -181,7 +188,8 @@ export default {
     },
 
     showBottomNav() {
-      return this.mini === false && this.bottomNav
+      // return this.mini === false && this.bottomNav
+      return true
     },
 
     showTopNav() {
@@ -189,7 +197,7 @@ export default {
     }
   },
   created() {
-    this.avatar = this.$getAvatar
+    // this.avatar = this.$getAvatar
   }
 }
 </script>

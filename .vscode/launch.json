@@ -2,11 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to JavaScript Functions",
-      "type": "node",
+      "type": "chrome",
       "request": "attach",
-      "port": 5858,
-      "preLaunchTask": "runFunctionsHost"
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "http://localhost:8081",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+   
     }
   ]
 }

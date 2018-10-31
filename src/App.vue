@@ -11,6 +11,7 @@
 <script>
 import Location from "./components/Location"
 import Employee from "./views/Employee"
+import Parse from "parse";
 // import { sync } from "vuex-pathify"
 
 export default {
@@ -32,10 +33,15 @@ export default {
     if (this.employeeList.length < 1) {
       this.$router.push("employee")
     }
+    // var currentOwner = Parse.User.current()
+    // if (!currentOwner) {
+    //   this.$router.push("employee")
+    // }
+    console.log("timing test");
     this.sub = this.$geb.getBus().subscribe(message => {
-      if (message.type == "employeeListUpdated") {
+      if (message.type == "deviceInfoSet") {
         // console.log("sending to employee ....");
-        if (message.needsOwner) {
+        if (!message.deviceInfo.currentOwner) {
           this.$router.push("employee")
         }
       }

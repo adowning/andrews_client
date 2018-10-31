@@ -18,18 +18,20 @@ export default {
     return {
       device: {},
       bgState: {}
-    };
+    }
   },
   created() {
-    document.addEventListener(
-      "deviceready",
-      this.configureBackgroundGeolocation,
-      false
-    );
+    if (device.platform == "android") {
+      document.addEventListener(
+        "deviceready",
+        this.configureBackgroundGeolocation,
+        false
+      )
+    }
   },
   methods: {
     async addLocationUpdate(location) {
-      console.log(location)
+      console.log(location);
       // const LocationUpdate = Parse.Object.extend("LocationUpdate");
       // const loc = new LocationUpdate();
       // loc.set("activity", location.activity);
@@ -49,7 +51,7 @@ export default {
     },
     async onLocation(data) {
       //console.log("onLocation", data);
-      this.addLocationUpdate(data);
+      this.addLocationUpdate(data)
     },
     async onLocationError(data) {
       //console.log("onLocationError", data);
@@ -102,20 +104,20 @@ export default {
       // var storage = window.localStorage;
       // We fetch put Device.uuid into localStorage to determine if this is first-boot of app.
       //  var bgGeo = this.bgService.getPlugin();
-      var bgGeo = window.BackgroundGeolocation;
-      bgGeo.on("location", this.onLocation, this.onLocationError);
-      bgGeo.on("motionchange", this.onMotionChange);
-      bgGeo.on("heartbeat", this.onHeartbeat);
-      bgGeo.on("geofence", this.onGeofence);
-      bgGeo.on("http", this.onHttp);
-      bgGeo.on("activitychange", this.onActivityChange);
-      bgGeo.on("providerchange", this.onProviderChange);
-      bgGeo.on("geofenceschange", this.onGeofencesChange);
-      bgGeo.on("schedule", this.onSchedule);
-      bgGeo.on("http", this.onHttpSuccess, this.onHttpFailure);
-      bgGeo.on("powersavechange", this.onPowerSaveChange);
-      bgGeo.on("connectivitychange", this.onConnectivityChange);
-      bgGeo.on("enabledchange", this.onEnabledChange);
+      var bgGeo = window.BackgroundGeolocation
+      bgGeo.on("location", this.onLocation, this.onLocationError)
+      bgGeo.on("motionchange", this.onMotionChange)
+      bgGeo.on("heartbeat", this.onHeartbeat)
+      bgGeo.on("geofence", this.onGeofence)
+      bgGeo.on("http", this.onHttp)
+      bgGeo.on("activitychange", this.onActivityChange)
+      bgGeo.on("providerchange", this.onProviderChange)
+      bgGeo.on("geofenceschange", this.onGeofencesChange)
+      bgGeo.on("schedule", this.onSchedule)
+      bgGeo.on("http", this.onHttpSuccess, this.onHttpFailure)
+      bgGeo.on("powersavechange", this.onPowerSaveChange)
+      bgGeo.on("connectivitychange", this.onConnectivityChange)
+      bgGeo.on("enabledchange", this.onEnabledChange)
 
       // let username = localStorage.getItem('username');
       // With the plugin's #ready method, the supplied config object will only be applied with the first
@@ -153,21 +155,21 @@ export default {
         })
         .then(state => {
           // Store the plugin state onto ourself for convenience.
-          console.log("- BackgroundGeolocation is ready: ", state)
-          this.bgState.enabled = state.enabled;
-          this.bgState.schedule = state.schedule;
-          this.bgState.isMoving = state.isMoving;
-          this.bgState.geofenceProximityRadius = state.geofenceProximityRadius;
+          console.log("- BackgroundGeolocation is ready: ", state);
+          this.bgState.enabled = state.enabled
+          this.bgState.schedule = state.schedule
+          this.bgState.isMoving = state.isMoving
+          this.bgState.geofenceProximityRadius = state.geofenceProximityRadius
           this.bgState.trackingMode =
             state.trackingMode === 1 || state.trackingMode === "location"
               ? "location"
-              : "geofence";
+              : "geofence"
 
-          bgGeo.start();
-        });
+          bgGeo.start()
+        })
     }
   }
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
