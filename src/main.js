@@ -3,6 +3,7 @@ import "./plugins/vuetify"
 import App from "./App.vue"
 import router from "./router"
 import store from "./store"
+// import "./plugins/pouchdb"
 import ParsePlugin from "./plugins/parse"
 // import HumanityPlugin from "./plugins/humanity"
 // import devtools from "@vue/devtools";

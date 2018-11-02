@@ -2,15 +2,15 @@ import Parse from "parse"
 import { gebHandler } from "vue-geb"
 import {setFunctions} from './humanity_funcs'
 
-var Minio = require("minio")
+// var Minio = require("minio")
 
-var minioClient = new Minio.Client({
-  endPoint: "groupandrews.com",
-  port: 9010,
-  useSSL: false,
-  accessKey: "asdfasdf",
-  secretKey: "asdfasdf"
-})
+// var minioClient = new Minio.Client({
+//   endPoint: "groupandrews.com",
+//   port: 9010,
+//   useSSL: false,
+//   accessKey: "asdfasdf",
+//   secretKey: "asdfasdf"
+// })
 
 const ParsePlugin = {
   async install(Vue, options) {
