@@ -1,19 +1,18 @@
 // import Parse from "parse"
 import { gebHandler } from "vue-geb"
 import axios from "axios"
-import Vue from "vue"
-import Parse from "parse";
-var token;
+import Parse from "parse"
+var token
 async function setFunctions(Vue) {
   try {
-    Vue.prototype.getClockStatus = async function(empId) {
-      return await axios.get(
-        `/api/v2/timeclocks/status/${empId}/1?access_token=` + token
-      )
-    };
+    // Vue.prototype.$getClockStatus = async function(empId) {
+    //   return await axios.get(
+    //     `/api/v2/timeclocks/status/${empId}/1?access_token=` + token
+    //   )
+    // }
     Vue.prototype.$getHumanityEmployeeList = async function() {
       return await axios.get(`/api/v2/employees/?access_token=` + token)
-    };
+    }
 
     Vue.prototype.$clockIn = async function(empId) {
       try {
@@ -23,55 +22,76 @@ async function setFunctions(Vue) {
           `https://www.humanity.com/api/v2/employees/${empId}/clockin?access_token=` +
             token,
           { access_token: token }
-        );
-        console.log(data2.data.status);
+        )
+        console.log(data2.data.status)
         if (result.data.status == 13) {
-          return "13";
+          return "13"
         } else {
-          var res = result.data;
-          return res;
+          var res = result.data
+          return res
         }
       } catch (e) {
-        console.log(e);
-        return "507";
+        console.log(e)
+        return "507"
       }
-    };
+    }
     Vue.prototype.$getHumanityClockStatus = async function(empId) {
-      console.log(empId)
       return axios(
         `/api/v2/timeclocks/status/${empId}/0?access_token=` + token
-      );
+      )
       //     `https://www.humanity.com/api/v2/timeclocks/status/${empId}/1?access_token=` +
       //       token
       //   );
     }
+    Vue.prototype.$humanityClockOut = async function(empId) {
+    try {
+      const result = await axios.put(`/api/v2/employees/${empId}/clockout?access_token=` + token, {"access_token": token})
+      if(result.data.status == 13){
+        return "13"
+        }else{
+          return result.data
+        }
+     
+    } catch (e) {
+      console.log(e)
+      return e
+      // response.send(e)
+    }
+  }
 
-    // const wordPromise = axios("http://www.setgetgo.com/randomword/get.php");
-    // const userPromise = axios("https://randomuser.me/api/");
-    // const namePromise = axios("https://uinames.com/api/");
-    // // await all three promises to come back and destructure the result into their own variables
-    // const [word, user, name] = await Promise.all([
-    //   wordPromise,
-    //   userPromise,
-    //   namePromise
-    // ]);
-    // console.log(word.data, user.data, name.data); // cool, {...}, {....}
-  } catch (e) {
-    console.error(e); // 💩
+  Vue.prototype.$humanityClockIn = async function(empId) {
+
+    try {
+      const result = await axios.post(`/api/v2/employees/${empId}/clockin?access_token=` + token, {"access_token": token})
+      if(result.data.status == 13){
+        return "13"
+        }else{
+          return result.data
+        }
+     
+    } catch (e) {
+      return e
+      // response.send(e)
+    }
+  }
+
+  }catch (e) {
+    console.log(e)
+    return e
+    // response.send(e)
   }
 }
 
 const HumanityPlugin = {
   install(Vue) {
-    console.log("installed");
     Parse.Config.get().then(
       function(config) {
-        token = config.get("humanityToken");
+        token = config.get("humanityToken")
         setFunctions(Vue)
       },
       function(error) {
         console.log(error)
-        token = window.localStorage.getItem("humanityToken");
+        token = window.localStorage.getItem("humanityToken")
       }
     )
   }

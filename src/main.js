@@ -4,7 +4,7 @@ import App from "./App.vue"
 import router from "./router"
 import store from "./store"
 import ParsePlugin from "./plugins/parse"
-import HumanityPlugin from "./plugins/humanity"
+// import HumanityPlugin from "./plugins/humanity"
 // import devtools from "@vue/devtools";
 import geb from "vue-geb"
 Vue.config.productionTip = false
@@ -19,7 +19,7 @@ async function onDeviceReady() {
   }
   Vue.use(geb)
   Vue.use(ParsePlugin, options)
-  Vue.use(HumanityPlugin)
+  // Vue.use(HumanityPlugin)
   new Vue({
     router,
     store,

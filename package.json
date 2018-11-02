@@ -2,9 +2,9 @@
   "name": "andrews_client",
   "version": "0.1.1",
   "private": true,
-   "engines" : {
-      "node" : "10" 
-    },
+  "engines": {
+    "node": "10"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -29,10 +29,12 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@mdi/font": "^3.0.39",
     "@vue/cli-plugin-babel": "^3.0.4",
     "@vue/cli-plugin-eslint": "^3.0.4",
     "@vue/cli-service": "^3.0.4",
     "@vue/eslint-config-prettier": "^3.0.5",
+    "material-design-icons-iconfont": "^4.0.2",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-cordova": "^2.0.8",

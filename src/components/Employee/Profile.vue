@@ -14,7 +14,7 @@
     <v-card-text>
       <div class="layout ma-0 align-center" :class="computeCardLayout">
         <v-avatar :size="computeAvatarSize" color="primary">
-          <img v-bind:src="employee.attributes.avatar" v-bind:alt="employee.name" v-if="showAvatar">
+          <img v-bind:src="employee.attributes.picture._url" v-bind:alt="employee.name" v-if="showAvatar">
           <span v-else class="white--text headline">{{ name.charAt(0) }}</span>
         </v-avatar>
         <div class="flex" :class="computeTextAlgin">
@@ -72,14 +72,16 @@
       <v-icon>place</v-icon>
     </v-btn>-->
   </v-bottom-nav>   
-  <v-btn v-if="employee.attributes.clockStatus == 'in'" @click.native="clockOut()" block color="#41B883" dark>Clock Out</v-btn>
-  <v-btn v-if="employee.attributes.clockStatus == 'in'" @click.native="setMyDevice()" block color="#41B883" dark>Make this my Device</v-btn>
-  <v-btn v-if="employee.attributes.clockStatus == 'out'"  @click.native="clockIn()" block color="#41B883" dark>Clock In</v-btn>
+  <v-btn v-if="employee.clockStatus == 'in'" @click.native="clockOut()" block color="warning" dark>Clock Out</v-btn>
+  <v-btn v-if="employee.clockStatus == 'in'" @click.native="setMyDevice()" block color="primary" dark>Make this my Device</v-btn>
+  <v-btn v-if="employee.clockStatus == 'out'"  @click.native="clockIn()" block color="success" dark>Clock In</v-btn>
 </div>
 </template>
 
 <script>
 import Parse from "parse"
+import { gebHandler } from "vue-geb"
+
 export default {
   props: {
     employee: {
@@ -125,51 +127,63 @@ export default {
     return() {}
   }),
   methods: {
-    updateEmployee(emp, clockedIn) {
-      // Create the object.
+   async updateEmployee(empId, clockedIn) {
+     var self = this
       var Employee = Parse.Object.extend("Employee")
       var query = new Parse.Query(Employee)
-      query.get(emp.objectId).then(
-        employee => {
+        query.equalTo("humanityId", empId)
+        var object = await query.first()
           if (clockedIn) {
-            employee.set("currentDevice", window.device.uuid);
+          object.set("clockStatus", "in")
+            object.set("currentDevice", self.$deviceInfo.uuid)
           } else {
-            employee.set("currentDevice", null);
+          object.set("clockStatus", "out")
+            object.set("currentDevice", null)
           }
-          employee.set("clockedIn", clockedIn);
-          return employee.save();
+          object.save().then(()=>{
+           this.$router.push("/")
+          })
+    },
+    handleResult(result){
+      var self = this
+      console.log(result)
+      if(result.status == 13){
+     gebHandler.emit({
+        data: {
+          color: "red",
+          text: "user already signed in"
         },
-        error => {
-          console.log(error);
-        }
-      );
+        type: "alert"
+      })
+      }
+      if (result.status == 1) {
+        console.log("employee is checked out")
+        self.updateEmployee(self.employee.attributes.humanityId, false)
+      }
+       if (result.status == 3) {
+            gebHandler.emit({
+        data: {
+          color: "red",
+          text: "employee is checked out"
+        },
+        type: "alert"
+      })
+      }
+      if (result.status == 200 && result.data.status == 1) {
+        console.log("employee is checked in")
+        self.updateEmployee(self.employee.attributes.humanityId, true)
+      }
     },
     async clockOut() {
-      var emp = this.employee;
-      var self = this;
-      const params = { empId: emp.humanityId, token: self.$humanityToken };
-      console.log("running clock OUT ");
-      const status = await Parse.Cloud.run("clockOut", params);
-      if (status.status == 1) {
-        this.updateEmployee(emp, false)
-      }
+      var emp = this.employee
+      const result = await this.$humanityClockOut(emp.attributes.humanityId)
+
+      this.handleResult(result)
     },
     async clockIn() {
-      var emp = this.employee;
-      var self = this;
-      const params = {
-        empId: emp.attributes.humanityId,
-        token: self.$humanityToken
-      };
-      console.log("running clock IN ");
-      const result = await Parse.Cloud.run("clockIn", params);
-      if (result.status == 1) {
-        this.updateEmployee(emp, true)
-      }
-      if (result.status == 3) {
-        console.error("humanity auth token is bad. sheeet")
-        // this.updateEmployee(emp, true)
-      }
+      var emp = this.employee
+      const result = await this.$humanityClockIn(emp.attributes.humanityId)
+    this.handleResult(result)
     }
   },
 
@@ -184,7 +198,7 @@ export default {
       return this.mini ? "48" : "96"
     },
     showAvatar() {
-      return this.employee.avatar !== null; //&& this.employee.avatar.src;
+      return this.employee.avatar !== null //&& this.employee.avatar.src;
     },
 
     showBottomNav() {
@@ -197,7 +211,18 @@ export default {
     }
   },
   created() {
-    // this.avatar = this.$getAvatar
+    console.log('created profile')
+    var self = this
+      // this.sub = this.$geb.getBus().subscribe(message => {
+      // console.log(message)
+      // if(message.type == 'deviceInfoSet'){
+      // console.log(message)
+
+      //    if(message.deviceInfo.updatedEmployee.id == self.employee.id){
+      //   self.employee = message.deviceInfo.updatedEmployee
+      // }
+      // }
+      // })
   }
 }
 </script>

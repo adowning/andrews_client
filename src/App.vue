@@ -4,25 +4,44 @@
       <!-- <Employee v-if="employeeList.length > 0"/> -->
       <Location/>
       <router-view></router-view>
+      <snackbar></snackbar>
     </v-content>
+     <v-btn
+          id="fab"
+          color="primary"
+          dark
+          fab
+          fixed
+          bottom
+          right
+        >
+          <v-icon>star</v-icon>
+        </v-btn>
+      <Footer></Footer>
   </v-app>
 </template>
 
 <script>
 import Location from "./components/Location"
 import Employee from "./views/Employee"
-import Parse from "parse";
+import Snackbar from "./components/Snackbar"
+import Footer from "./components/Footer"
+import Parse from "parse"
 // import { sync } from "vuex-pathify"
+import { gebHandler } from "vue-geb"
 
 export default {
   name: "App",
   components: {
     Location,
-    Employee
+    Employee,
+    Snackbar,
+    Footer
   },
   data() {
     return {
-      employeeList: []
+      employeeList: [],
+    
     }
   },
   computed: {
@@ -30,22 +49,31 @@ export default {
     // ...sync('*')
   },
   created() {
-    if (this.employeeList.length < 1) {
+    if (this.$deviceInfo) {
+        console.log('1')
+    if (this.$deviceInfo.employeeList.length < 1) {
+        console.log("pushirng to employee")
       this.$router.push("employee")
     }
+    }
+    // if (this.deviceInfo.employeeList.length < 1) {
+    //   this.$router.push("employee")
+    // }
     // var currentOwner = Parse.User.current()
     // if (!currentOwner) {
     //   this.$router.push("employee")
     // }
-    console.log("timing test");
     this.sub = this.$geb.getBus().subscribe(message => {
       if (message.type == "deviceInfoSet") {
-        // console.log("sending to employee ....");
         if (!message.deviceInfo.currentOwner) {
+        console.log("pushirng to employee")
           this.$router.push("employee")
         }
       }
+   
     })
+    
+   
   }
 }
 </script>

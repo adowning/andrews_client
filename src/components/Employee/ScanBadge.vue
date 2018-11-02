@@ -1,7 +1,7 @@
 <template>
-  <v-container grid-list>
-    <v-layout align-center justify-center column/>
-      <v-flex>
+ <v-layout column>
+     <v-img src="./img/logo.png" aspect-ratio="1.7"></v-img>    
+       <v-flex>
        <qrcode-reader v-if="!scan && !paused && startScan"  @init="onInit" @decode="onDecode" :paused="paused">
         </qrcode-reader>
       </v-flex>
@@ -18,7 +18,7 @@
           Cancel
         </v-btn>
       </v-flex>
-  </v-container>
+ </v-layout>
 </template>
       
 <script>
@@ -33,25 +33,30 @@ export default {
       startScan: false
     }
   },
-
+  
   methods: {
+    goHome(){
+      this.$router.push("/")
+
+    },
     async updateScanedEmployee(_id) {
+      var self = this
       // var list = await this.$getHumanityEmployeeList()
       // console.log(list.data)
       // console.log(list.data.data)
       // var list = await this.$deviceInfo.getHumanityEmployeeList();
       // var list = this.$deviceInfo.employeeList;
       // var status = await this.$getHumanityClockStatus(_id)
-      for (var e of this.$deviceInfo.employeeList) {
+      for (var e of this.$deviceInfo.allEmployees) {
         if (e.attributes.humanityId === _id) {
-          console.log("found employee")
-          var status = await self.$getHumanityClockStatus(_id);
+          var status = await this.$getHumanityClockStatus(_id)
+          console.log(status.data.data)
+          e.clockStatus = status.data.data
           gebHandler.emit({
             data: e,
-            humanityClockStatus: status.data.data,
             type: "employeeScanSuccess"
-          });
-          console.log(self.$getClockStatus(e.humanityId));
+          })
+          // console.log(self.$getClockStatus(e.humanityId))
         }
       }
     },
@@ -93,11 +98,13 @@ export default {
           disableSuccessBeep: false // iOS and Android
         }
       )
-    },
+    }
+  },
     onDestroy() {
       console.log("destroying")
       this.user = null
     }
   }
-}
+  
+
 </script>
